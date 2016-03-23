@@ -96,3 +96,4 @@ Right : Go to Next day strip of the comic.
 
 Left  : Go to previous day strip of the comic.
 
+Spacebar : Close pop-up window
