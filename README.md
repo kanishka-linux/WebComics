@@ -1,6 +1,6 @@
 ﻿#WebComics :  A GNU/Linux Desktop Application for accessing Web-Comics over the internet.
 
-Note : This appliation fetches comics strip from 'gocomics.com'
+Note : This appliation fetches comic strips from 'gocomics.com'
 
 #Screenshot
 ![ReadManga](/Images/sample.png)
@@ -93,5 +93,6 @@ Problem: Some comic strips are published weekly or monthly or without any fixed 
 #KeyBoard Shortcuts:
 
 Right : Go to Next day strip of the comic.
+
 Left  : Go to previous day strip of the comic.
 
