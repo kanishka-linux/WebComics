@@ -2,13 +2,19 @@
 
 Note : This appliation fetches comic strips from 'gocomics.com'
 
+(Arch users can directly go to Release section ,download appropriate package and install it using 'sudo pacman -U pkg_name')
+
 #Screenshot
 ![ReadManga](/Images/sample.png)
 
 #Dependencies and Installation:
+
 (This Application is mainly written in pyqt4 and python3)
 
+(Arch users can directly go to Release section ,download appropriate package. The package can be installed using 'sudo pacman -U pkg_name'. If some dependencies are missing try installing it using 'yaourt -U pkg_name'. Then they can skip all other steps. Package can be uninstalled using 'sudo pacman -R WebComics')
+
 Note: If you've successfully installed AnimeWatch Player before, then you don't have to install any dependencies at all and can directly go to main installation process, which is same as that of 'AnimeWatch'.
+
 
 python3
 
