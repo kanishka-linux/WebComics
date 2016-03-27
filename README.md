@@ -6,6 +6,8 @@ Note : This appliation fetches comic strips from 'gocomics.com'
 
 (Ubuntu or Debian based distro users can also go to Release section,download appropriate .deb package and install it using 'sudo gdebi pkg_name.deb' )
 
+(If You've Already installed application using common method and now want to re-install it again using either .deb and .pkg.tar.xz, then first remove WebComics.desktop file located in '~/.local/share/applications/' and also remove config directory '~/.config/Webcomics/src/)
+
 #Screenshot
 ![ReadManga](/Images/sample.png)
 
@@ -49,7 +51,7 @@ wget
 
 sudo pacman -S python python-pyqt4 python-pycurl python-requests python-urllib3 python-pillow python-beautifulsoup4 python-lxml python-psutil python-pip curl wget
 
-
+If you want to try PyQt5 Experimental Version then install 'python-pyqt5' package also.
 
 #In ubuntu 14.04, default python points to python 2.7, hence for installing dependencies use following command
 
@@ -57,7 +59,7 @@ sudo apt-get install python3 python3-pyqt4 python3-pycurl python3-requests pytho
 
 
 
-#Once Dependencies are installed Download the folder. Goto WebComics Directory containing 'install.py' file. Open Terminal in the directory and use following command:
+#Once Dependencies are installed Download the Stable or Experimental folder containing 'install.py' file. Open Terminal in the directory and use following command:
 
 #In Arch:
 
