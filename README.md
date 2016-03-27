@@ -6,7 +6,7 @@ Note : This appliation fetches comic strips from 'gocomics.com'
 
 (Ubuntu or Debian based distro users can also go to Release section or package folder,download appropriate .deb package and install it using 'sudo gdebi pkg_name.deb' )
 
-(If You've Already installed application using common method and now want to re-install it again using either .deb and .pkg.tar.xz, then first remove WebComics.desktop file located in '~/.local/share/applications/' and also remove config directory '~/.config/Webcomics/src/)
+(If You've Already installed application using common method and now want to re-install it again using either .deb and .pkg.tar.xz or you want to try PyQt5 version, then first remove WebComics.desktop file located in '~/.local/share/applications/' and also remove config directory '~/.config/Webcomics/src/)
 
 #Screenshot
 ![ReadManga](/Images/sample.png)
