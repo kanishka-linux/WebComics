@@ -71,7 +71,7 @@ class MyWidget(QtWidgets.QWidget):
 			ui.nxt()
 			#ui.zoom_image()
 			#ui.scrollArea.verticalScrollBar().setValue(0)
-		super(QtWidgets.QWidget, self).keyPressEvent(event)
+		#super(QtWidgets.QWidget, self).keyPressEvent(event)
 
 class ExtendedQLabelEpn(QtWidgets.QLabel):
 

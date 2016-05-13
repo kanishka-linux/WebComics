@@ -1,0 +1,32 @@
+pkgname=WebComics
+_pkgname=WebComics
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Online Comics Viewer"
+arch=(any)
+license=('GPL3')
+depends=('python' 'python-pyqt4' 'python-pycurl' 'python-urllib3' 'curl' 'wget'
+        'python-beautifulsoup4' 'python-psutil' 'python-pillow' 'python-lxml')
+
+#source=("git+https://github.com/abhishek-archlinux/WebComics.git")
+source=("https://github.com/abhishek-archlinux/"${pkgname}"/archive/v"${pkgver}-${pkgrel}".zip")
+md5sums=('SKIP')
+_gitname=WebComics-PyQt4-Stable
+
+
+
+package() {
+  cd "${srcdir}"
+
+  _bpath="${srcdir}/${pkgname}-${pkgver}-${pkgrel}/${_gitname}"
+
+  install -d "${pkgdir}/usr/share/${_pkgname}/"
+  install -d "${pkgdir}/usr/share/applications/"
+  install -d "${pkgdir}/usr/bin/"
+  # Program
+  install -Dm755 "${_bpath}"/WebComics.py "${pkgdir}/usr/share/${_pkgname}/"
+  cat "${_bpath}/WebComics.desktop" | sed 's/Exec=/Exec=python -B \/usr\/share\/WebComics\/WebComics.py/g' > "${pkgdir}/usr/share/applications/WebComics.desktop"
+  echo 'python -B /usr/share/WebComics/WebComics.py' > "${pkgdir}/usr/bin/web-comics"
+  chmod +x "${pkgdir}/usr/bin/web-comics"
+  
+}
