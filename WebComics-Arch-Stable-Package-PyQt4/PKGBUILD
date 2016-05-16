@@ -16,8 +16,7 @@ _gitname=WebComics-PyQt4-Stable
 
 
 package() {
-  cd "${srcdir}"
-
+  
   _bpath="${srcdir}/${pkgname}-${pkgver}-${pkgrel}/${_gitname}"
 
   install -d "${pkgdir}/usr/share/${_pkgname}/"
@@ -26,7 +25,8 @@ package() {
   # Program
   install -Dm755 "${_bpath}"/WebComics.py "${pkgdir}/usr/share/${_pkgname}/"
   cat "${_bpath}/WebComics.desktop" | sed 's/Exec=/Exec=python -B \/usr\/share\/WebComics\/WebComics.py/g' > "${pkgdir}/usr/share/applications/WebComics.desktop"
-  echo 'python -B /usr/share/WebComics/WebComics.py' > "${pkgdir}/usr/bin/web-comics"
+  echo '#!/bin/bash' > "${pkgdir}/usr/bin/web-comics"
+  echo 'python -B /usr/share/WebComics/WebComics.py' >> "${pkgdir}/usr/bin/web-comics"
   chmod +x "${pkgdir}/usr/bin/web-comics"
   
 }
