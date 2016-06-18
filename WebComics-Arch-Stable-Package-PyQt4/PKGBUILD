@@ -8,8 +8,8 @@ license=('GPL3')
 depends=('python' 'python-pyqt4' 'python-pycurl' 'python-urllib3' 'curl' 'wget'
         'python-beautifulsoup4' 'python-psutil' 'python-pillow' 'python-lxml')
 
-#source=("git+https://github.com/abhishek-archlinux/WebComics.git")
-source=("https://github.com/abhishek-archlinux/"${pkgname}"/archive/v"${pkgver}-${pkgrel}".zip")
+#source=("git+https://github.com/kanishka-linux/WebComics.git")
+source=("https://github.com/kanishka-linux/"${pkgname}"/archive/v"${pkgver}-${pkgrel}".zip")
 md5sums=('SKIP')
 _gitname=WebComics-PyQt4-Stable
 
