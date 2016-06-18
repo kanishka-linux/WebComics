@@ -2,7 +2,7 @@
 
 Note : This appliation fetches comic strips from 'gocomics.com'
 
-(Arch users can directly go to Release section or Package folder ,download appropriate pkg.tar.xz package and install it using 'sudo pacman -U pkg_name')
+(Arch users can directly go to Release section or Package folder ,download appropriate pkg.tar.xz package and install it using 'sudo pacman -U pkg_name'. Alternatively they can use PKGBUILD)
 
 (Ubuntu or Debian based distro users can also go to Release section or package folder,download appropriate .deb package and install it using 'sudo gdebi pkg_name.deb' )
 
