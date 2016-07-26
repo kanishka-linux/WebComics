@@ -26,8 +26,6 @@ python3
 
 python-pyqt4
 
-python-requests
-
 python-urllib3
 
 python-pillow
@@ -35,8 +33,6 @@ python-pillow
 python-beautifulsoup4
 
 python-lxml
-
-python-pip
 
 python-pycurl
 
@@ -49,13 +45,13 @@ wget
 
 #Dependencies installation in arch.
 
-sudo pacman -S python python-pyqt4 python-pycurl python-requests python-urllib3 python-pillow python-beautifulsoup4 python-lxml python-psutil python-pip curl wget
+sudo pacman -S python python-pyqt4 python-pycurl python-urllib3 python-pillow python-beautifulsoup4 python-lxml python-psutil curl wget
 
 If you want to try PyQt5 Experimental Version then install 'python-pyqt5' package also.
 
 #In ubuntu 14.04, default python points to python 2.7, hence for installing dependencies use following command
 
-sudo apt-get install python3 python3-pyqt4 python3-pycurl python3-requests python3-urllib3 python3-pil python3-bs4 python3-lxml python3-psutil python3-pip curl wget
+sudo apt-get install python3 python3-pyqt4 python3-pycurl python3-urllib3 python3-pil python3-bs4 python3-lxml python3-psutil curl wget
 
 
 
