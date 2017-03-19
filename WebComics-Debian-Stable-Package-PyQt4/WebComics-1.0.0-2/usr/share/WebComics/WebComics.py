@@ -25,8 +25,6 @@ import datetime
 import time
 import re
 import sys
-import urllib
-import urllib3
 import pycurl
 from io import StringIO,BytesIO    
 import subprocess
@@ -71,7 +69,7 @@ class MyWidget(QtGui.QWidget):
 			ui.nxt()
 			#ui.zoom_image()
 			#ui.scrollArea.verticalScrollBar().setValue(0)
-		super(QtGui.QWidget, self).keyPressEvent(event)
+		#super(QtGui.QWidget, self).keyPressEvent(event)
 
 class ExtendedQLabelEpn(QtGui.QLabel):
 
@@ -154,11 +152,11 @@ def fetch_comics(base_url,dt):
 		content = ccurl(url)
 		#getPrevNext(content)
 		#m = re.findall('http://assets.amuniversal.com/[^]*',content)
-		m = re.findall('class="strip" src="http[^"]*',content)
+		m = re.findall('data-image="http[^"]*',content)
 		print (m)
 		j = 0
 		for i in m:
-			m[j] = re.sub('class="strip" src="',"",i)
+			m[j] = re.sub('data-image="',"",i)
 			j = j+1
 		print (m)
 		try:
