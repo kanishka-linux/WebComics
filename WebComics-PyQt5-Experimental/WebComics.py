@@ -95,7 +95,7 @@ def getContentUnicode(content):
 	return content
 
 def ccurl(url):
-	hdr = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:35.0) Gecko/20100101 Firefox/35.0"
+	hdr = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0"
 	c = pycurl.Curl()
 	c.setopt(c.FOLLOWLOCATION, True)
 	c.setopt(c.USERAGENT, hdr)
