@@ -25,8 +25,8 @@ import shutil
 import subprocess
 import platform
 home1 = expanduser("~")
-home = home1+"/.config/Webcomics"
-nHome = home+'/src' 
+home = os.path.join(home1,".config","Webcomics")
+nHome = os.path.join(home,'src')
 
 if not os.path.exists(home):
 	os.makedirs(home)
