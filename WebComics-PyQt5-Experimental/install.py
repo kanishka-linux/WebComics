@@ -25,7 +25,6 @@ import shutil
 import subprocess
 import platform
 home1 = expanduser("~")
-#home1 = "/usr/local/share"
 home = home1+"/.config/Webcomics"
 nHome = home+'/src' 
 
@@ -64,13 +63,9 @@ for i in lines:
 	f.write(i)
 f.close()
 
-#picn = home+'/default.jpg'
-#if not os.path.exists(picn):
-#	shutil.copy('default.jpg',home+'/default.jpg')
 	
 dest_file = home1+'/.local/share/applications/WebComics.desktop'
 
-#subprocess.call(['sudo','cp',home+'/readmanga.desktop',dest_file])
 shutil.copy(home+'/WebComics.desktop',dest_file)
 
 print("Application Launcher: "+dest_file)
