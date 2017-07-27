@@ -24,6 +24,7 @@ from os.path import expanduser
 import shutil
 import subprocess
 import platform
+
 home1 = expanduser("~")
 home = os.path.join(home1,".config","Webcomics")
 nHome = os.path.join(home,'src')
@@ -63,7 +64,6 @@ for i in lines:
 	f.write(i)
 f.close()
 
-	
 dest_file = home1+'/.local/share/applications/WebComics.desktop'
 
 shutil.copy(home+'/WebComics.desktop',dest_file)
