@@ -58,7 +58,7 @@ Simply remove the application launcher '.local/share/applications/WebComics.desk
 
 If Application Launcher in the menu is not working or programme is crashing then directly go to ".config/Webcomics/src/", open terminal there and run "python3 WebComics.py" or "python WebComics.py" as per your default python setup. If there is some problem in installation, then you will get idea about it, whether it is missing dependency or something else, or you can report the error as per the message in terminal.
 
-If you do not find application launcher in the menu then try copying manually ".config/ReadMangaKA/WebComics.desktop" to either ".local/share/applications/" or "/usr/share/applications/"
+If you do not find application launcher in the menu then try copying manually ".config/Webcomics/WebComics.desktop" to either ".local/share/applications/" or "/usr/share/applications/"
 
 In LXDE, XFCE or Cinnamon ,any new entry of launcher in '.local/share/applications/' is instantly shown in Start Menu (In this case, entry will be shown either in Multimedia or Sound & Video). In Ubuntu Unity you will have to either logout and login again or reboot to see the entry in Unity dash Menu.
 
