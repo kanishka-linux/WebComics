@@ -34,13 +34,13 @@ sudo apt-get install python3 python3-pyqt5 python3-pycurl python3-pil python3-bs
 
 
 
-# Once Dependencies are installed Download the Experimental folder containing 'install.py' file. Open Terminal in the directory and use following command:
+### Once Dependencies are installed Download the Experimental folder containing 'install.py' file. Open Terminal in the directory and use following command:
 
-# In Arch:
+### In Arch:
 
 python install.py
 
-# In Ubuntu 14.04+:
+### In Ubuntu 14.04+:
 
 python3 install.py
 
@@ -50,11 +50,11 @@ All other configuration files will be created in "~/.config/Webcomics/" and all 
 
 Note: PyQt4 version is no loger supported
 
-# Uninstall
+### Uninstall
 
 Simply remove the application launcher '.local/share/applications/WebComics.desktop' and clear the directory '.config/Webcomics/src/'. If you want to remove all configuration files also, then simply delete directory '.config/Webcomics/'. Once you delete the configuration directory, all the settings will be lost.
 
-# Troubleshooting
+### Troubleshooting
 
 If Application Launcher in the menu is not working or programme is crashing then directly go to ".config/Webcomics/src/", open terminal there and run "python3 WebComics.py" or "python WebComics.py" as per your default python setup. If there is some problem in installation, then you will get idea about it, whether it is missing dependency or something else, or you can report the error as per the message in terminal.
 
