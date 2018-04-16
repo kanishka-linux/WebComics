@@ -1,4 +1,4 @@
-﻿# WebComics :  A GNU/Linux Desktop Application for accessing Web-Comics over the internet.
+﻿# WebComics :  A Desktop client for accessing online comic strips.
 
 Note : This appliation fetches comic strips from 'gocomics.com'
 
@@ -18,6 +18,27 @@ python-beautifulsoup4
 python-lxml
 
 
+## Installation (Common for all pltforms)
+
+		$ git clone https://github.com/kanishka-linux/WebComics
+		$ cd Webcomics
+		$ python3 setup.py sdist (or python setup.py sdist)
+		$ cd dist
+		$ sudo pip3 install pkg_available_in_directory (or pip install pkg_available_in_directory) 
+        {where 'pkg_available_in_directory' is the exact name of the package created in the 'dist' folder}
+			
+# Uninstall 
+		
+		uninstalling WebComics
+		
+		$ sudo pip3 uninstall webcomics
+		
+		for uninstalling dependencies
+		
+		$ sudo pip3 uninstall PyQt5 sip Pillow bs4 lxml
+
+Once installed, open application using command **webcomics**
+
 # Dependencies installation in arch.
 
 sudo pacman -S python python-pyqt5 python-pillow python-beautifulsoup4 python-lxml
@@ -25,36 +46,6 @@ sudo pacman -S python python-pyqt5 python-pillow python-beautifulsoup4 python-lx
 # In ubuntu 16.04+
 
 sudo apt-get install python3 python3-pyqt5 python3-pil python3-bs4 python3-lxml
-
-
-
-### Once Dependencies are installed Download the Experimental folder containing 'install.py' file. Open Terminal in the directory and use following command:
-
-### In Arch:
-
-python install.py
-
-### In Ubuntu 14.04+:
-
-python3 install.py
-
-Application Launcher will be created as "~/.local/share/applications/WebComics.desktop"
-
-All other configuration files will be created in "~/.config/Webcomics/" and all the comics strips that you have visited will be locally stored in this folder for later viewing.
-
-Note: PyQt4 version is no loger supported
-
-### Uninstall
-
-Simply remove the application launcher '.local/share/applications/WebComics.desktop' and clear the directory '.config/Webcomics/src/'. If you want to remove all configuration files also, then simply delete directory '.config/Webcomics/'. Once you delete the configuration directory, all the settings will be lost.
-
-### Troubleshooting
-
-If Application Launcher in the menu is not working or programme is crashing then directly go to ".config/Webcomics/src/", open terminal there and run "python3 WebComics.py" or "python WebComics.py" as per your default python setup. If there is some problem in installation, then you will get idea about it, whether it is missing dependency or something else, or you can report the error as per the message in terminal.
-
-If you do not find application launcher in the menu then try copying manually ".config/Webcomics/WebComics.desktop" to either ".local/share/applications/" or "/usr/share/applications/"
-
-In LXDE, XFCE or Cinnamon ,any new entry of launcher in '.local/share/applications/' is instantly shown in Start Menu (In this case, entry will be shown either in Multimedia or Sound & Video). In Ubuntu Unity you will have to either logout and login again or reboot to see the entry in Unity dash Menu.
 
 
 # Brief Documentation
@@ -68,7 +59,7 @@ You can't change the size of original viewer. If you want to resize image then y
 
 Problem: Some comic strips are published weekly or monthly or without any fixed interval. In such cases, the application will only fetch latest comics strip. Previous or Next buttons won't work in this case. User can try various 'Dates' from the Calender Menu, to go to different strips of the comic directly, if previous or next buttons are not giving proper results.
 
-# KeyBoard Shortcuts:
+# KeyBoard Shortcuts for pop-up window:
 
 Right : Go to Next day strip of the comic.
 
