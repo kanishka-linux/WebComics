@@ -475,9 +475,10 @@ class Ui_MainWindow(object):
             fetch_comics(base_url, td)
     
 
-if __name__ == "__main__":
+def main():
     import sys
-    global td, base_url, picn, home, cur_date, screen_width, screen_height, homeComics, MainWindow
+    global ui, MainWindow, td, base_url, picn, home, cur_date
+    global homeComics, screen_width, screen_height
     home = os.path.expanduser("~")
     homeComics = os.path.join(home, ".config", "Webcomics")
     comics_list = os.path.join(homeComics, "config.txt")
@@ -511,4 +512,7 @@ if __name__ == "__main__":
                 if j:
                     ui.btn1.addItem(j)
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
 
