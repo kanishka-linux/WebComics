@@ -17,20 +17,14 @@ python-beautifulsoup4
 
 python-lxml
 
-python-pycurl
-
-curl
-
-wget
-
 
 # Dependencies installation in arch.
 
-sudo pacman -S python python-pyqt5 python-pycurl python-pillow python-beautifulsoup4 python-lxml curl wget
+sudo pacman -S python python-pyqt5 python-pillow python-beautifulsoup4 python-lxml
 
 # In ubuntu 16.04+
 
-sudo apt-get install python3 python3-pyqt5 python3-pycurl python3-pil python3-bs4 python3-lxml curl wget
+sudo apt-get install python3 python3-pyqt5 python3-pil python3-bs4 python3-lxml
 
 
 
