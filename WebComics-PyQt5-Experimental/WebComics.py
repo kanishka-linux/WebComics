@@ -21,11 +21,7 @@ import datetime
 import time
 import re
 import sys
-import pycurl
 import urllib.request
-from io import StringIO, BytesIO    
-import subprocess
-from subprocess import check_output
 from bs4 import BeautifulSoup
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -308,8 +304,6 @@ class Ui_MainWindow(object):
             url = "http://www.gocomics.com/comics/a-to-z"
             content = ccurl(url)
             soup = BeautifulSoup(content, 'lxml')
-            #link = soup.find('div', {'id':'content-full'})
-            #links = link.findAll('a')
             links = soup.findAll('a')
             for i in links:
                 j = i.get('href')
