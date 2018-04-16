@@ -14,33 +14,28 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with WebComics.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
 """
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QDateTime
+import os
 import datetime
 import time
 import re
 import sys
 import pycurl
+import urllib.request
 from io import StringIO, BytesIO    
 import subprocess
-import os.path
 from subprocess import check_output
 from bs4 import BeautifulSoup
 from PIL import Image
-from os.path import expanduser
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QDateTime
 
 class QtGuiQWidgetScroll(QtWidgets.QScrollArea):
     def __init__(self):
         super(QtGuiQWidgetScroll, self).__init__()
         
     def keyPressEvent(self, event):
-        
-        
         if event.key() == QtCore.Qt.Key_Left:
             ui.previous()
             ui.zoom_image()
@@ -52,74 +47,49 @@ class QtGuiQWidgetScroll(QtWidgets.QScrollArea):
         elif event.key() == QtCore.Qt.Key_Space:
             self.hide()
             ui.tab.setFocus()
-        super(QtGuiQWidgetScroll, self).keyPressEvent(event)
+        else:
+            super(QtGuiQWidgetScroll, self).keyPressEvent(event)
+
 
 class MyWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         super(QtWidgets.QWidget, self).__init__(parent)
         
     def keyPressEvent(self, event):
-        
-        
         if event.key() == QtCore.Qt.Key_Left:
             ui.previous()
-            #ui.zoom_image()
-            #ui.scrollArea.verticalScrollBar().setValue(0)
         elif event.key() == QtCore.Qt.Key_Right:
             ui.nxt()
-            #ui.zoom_image()
-            #ui.scrollArea.verticalScrollBar().setValue(0)
-        #super(QtWidgets.QWidget, self).keyPressEvent(event)
+
 
 class ExtendedQLabelEpn(QtWidgets.QLabel):
 
     def __init(self, parent):
-        #QLabel.__init__(self, parent)
         super(ExtendedQLabelEpn, self).__init__(parent)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Backspace:
             ui.previous()
             ui.zoom_image()
-def getContentUnicode(content):
-    if isinstance(content, bytes):
-        print("I'm byte")
-        try:
-            content = str((content).decode('utf-8'))
-        except:
-            content = str(content)
+            
+            
+def ccurl(url, opt=None, out_file=None):
+    global MainWindow
+    MainWindow.setWindowTitle('Wait..')
+    usr_agent = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0"
+    content = None
+    req = urllib.request.Request(
+        url, data=None, headers={'User-Agent': usr_agent})
+    if opt == '-o' and out_file:
+        urllib.request.urlretrieve(url, out_file)
     else:
-        print(type(content))
-        content = str(content)
-        print("I'm unicode")
-    return content
-
-def ccurl(url):
-    hdr = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0"
-    c = pycurl.Curl()
-    c.setopt(c.FOLLOWLOCATION, True)
-    c.setopt(c.USERAGENT, hdr)
+        f = urllib.request.urlopen(req)
+        content = f.read().decode('utf-8')
+    MainWindow.setWindowTitle('Read Comics')
+    if content:
+        return content
     
-    url = str(url)
-    c.setopt(c.URL, url)
     
-    storage = BytesIO()
-    c.setopt(c.WRITEFUNCTION, storage.write)
-    c.perform()
-    c.close()
-    content = storage.getvalue()
-    content = getContentUnicode(content)
-    return content
-      
-def findimg(url):
-    global name, homeComics, td, home1
-    if url:
-    
-        t = re.sub('/', '-', td)
-        picn = home1+'/'+name + "-"+t+'.jpg'
-        if not os.path.isfile(picn):
-            subprocess.Popen(["wget", url, "-O", picn])
-    return picn
 def getPrevNext(content):
     global prev_date, next_date
     
@@ -143,36 +113,34 @@ def getPrevNext(content):
     print(next_date)
     
 def fetch_comics(base_url, dt):
-    global picn, name, homeComics, home1, prev_date, cur_date
+    global picn, name, homeComics, home1, prev_date, cur_date, MainWindow
     t = re.sub('/', '-', dt)
-    picn = home1+'/'+name + "-"+t+'.jpg'
-    print (picn)
+    picn = os.path.join(home1, '{}-{}.jpg'.format(name, t))
+    print(picn)
     try:
         if not os.path.isfile(picn):
             url = base_url + dt
             content = ccurl(url)
             print(url)
-            #getPrevNext(content)
-            #m = re.findall('http://assets.amuniversal.com/[^]*', content)
             m = re.findall('data-image="http[^"]*', content)
-            print (m)
+            print(m)
             j = 0
             for i in m:
                 m[j] = re.sub('data-image="', "", i)
                 j = j+1
-            print (m)
+            print(m)
             try:
                 url = m[1]
             except:
                 url = m[0]
-            subprocess.call(["wget", url, "-O", picn])
-        img = QtGui.QPixmap(picn, "1")
-        ui.label.setPixmap(img)
+            ccurl(url, opt='-o', out_file=picn)
+        if os.path.isfile(picn):
+            img = QtGui.QPixmap(picn, "1")
+            ui.label.setPixmap(img)
+        else:
+            MainWindow.setWindowTitle('No Comics For This Date')
     except Exception as err:
         print(err)
-
-
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -250,8 +218,6 @@ class Ui_MainWindow(object):
         self.btn1 = QtWidgets.QComboBox(self.frame)
         self.btn1.setGeometry(QtCore.QRect(30, 15, 110, 31))
         self.btn1.setObjectName(_fromUtf8("btn1"))
-        
-        
         
         self.btn1.addItem(_fromUtf8(""))
         self.btn1.addItem(_fromUtf8(""))
@@ -332,7 +298,7 @@ class Ui_MainWindow(object):
     def loadMoreComics(self):
         self.tabWidget.setCurrentIndex(1)
         global homeComics
-        comics_list = homeComics + '/config.txt'
+        comics_list = os.path.join(homeComics, 'config.txt')
         f = open(comics_list, 'r')
         lines = f.readlines()
         f.close()
@@ -363,7 +329,7 @@ class Ui_MainWindow(object):
             
     def addComics(self):
         global homeComics
-        comics_list = homeComics + '/config.txt'
+        comics_list = os.path.join(homeComics, 'config.txt')
         r = self.listComics.currentRow()
         item = self.listComics.item(r)
         if item:
@@ -430,7 +396,7 @@ class Ui_MainWindow(object):
         name = str(self.btn1.currentText())
         if name != "Select" and name:
             self.tabWidget.setCurrentIndex(0)
-            home1 = homeComics+'/'+name
+            home1 = os.path.join(homeComics, name)
             if not os.path.exists(home1):
                 os.makedirs(home1)
             if name == "Calvin":
@@ -446,19 +412,11 @@ class Ui_MainWindow(object):
     def zoom_image(self):
         global picn, screen_width, screen_height
         try:
-            #Image.open(picn).show()
             im = Image.open(picn)
             w, h = im.size
-            
             img = QtGui.QPixmap(picn, "1")
             self.labelExp.setPixmap(img)
             QtWidgets.QApplication.processEvents()
-            #self.labelExp.setMinimumHeight(screen_height-60)
-            #self.labelExp.setMaximumHeight(10000000)
-            #self.labelExp.setMinimumWidth(screen_width-100)
-            #self.(screen_width-100)
-            #w = self.labelExp.width()
-            #h = self.labelExp.height()
             print (w, screen_width, h, screen_height)
             if w < screen_width:
                 wd = w+20
@@ -476,13 +434,11 @@ class Ui_MainWindow(object):
         
     def goto_direct(self):
         global td, base_url, picn, cur_date, prev_date
-        
-        print ("Hello")
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         td = re.sub('-', '/', str(today))
         print (td)
-        
         fetch_comics(base_url, td)  
+        
     def goto_page(self):
         global td, base_url, picn, cur_date, prev_date
         try:
@@ -495,29 +451,13 @@ class Ui_MainWindow(object):
             td = l[-3]+'/'+l[-2]+'/'+l[-1] 
             print(td)
             cur_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
-            
-            
-            
-            #linkP = link.find('ul', {'class':'feature-nav'})
-            #linkP1 = linkP.find('a', {'class':'prev'})
-            #linkP2 = linkP1['href']
-            #print (linkP2)
-            #l = linkP2.split('/')
-            #prev_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
-            #print(prev_date)
-            
         except:
-            print ("Hello")
             today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
             td = re.sub('-', '/', str(today))
-            print (td)
+            print(td)
         print(base_url, td)
         fetch_comics(base_url, td)
         self.tab.setFocus()  
-        #Image.open(url).show()
-    
-    
-    
   
     def previous(self):
         global td, base_url, picn, prev_date
@@ -526,38 +466,33 @@ class Ui_MainWindow(object):
         yday = today - day
         self.date.setDate(yday)
         td = re.sub('-', '/', str(yday))
-        print (td)
+        print(td)
         fetch_comics(base_url, td)
-    
     
     def nxt(self):
         global td, base_url, picn, cur_date, next_date
-        print ("Hello")
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         day = datetime.timedelta(days=1)
         tm = today + day
-        
         if tm <= cur_date:
             self.date.setDate(tm)
             td = re.sub('-', '/', str(tm))
             print (td)
             fetch_comics(base_url, td)
     
-    
-    
 
 if __name__ == "__main__":
     import sys
-    global td, base_url, picn, home, cur_date, screen_width, screen_height, homeComics
-    home = expanduser("~")
-    comics_list = home+"/.config/Webcomics/config.txt"
-    homeComics = home+"/.config/Webcomics"
-    
+    global td, base_url, picn, home, cur_date, screen_width, screen_height, homeComics, MainWindow
+    home = os.path.expanduser("~")
+    homeComics = os.path.join(home, ".config", "Webcomics")
+    comics_list = os.path.join(homeComics, "config.txt")
     if not os.path.exists(homeComics):
         os.makedirs(homeComics)
-    if not os.path.exists(homeComics+'/src'):
-        os.makedirs(homeComics+'/src')
-        os.chdir(homeComics+'/src')
+    comics_src = os.path.join(homeComics, 'src')
+    if not os.path.exists(comics_src):
+        os.makedirs(comics_src)
+        os.chdir(comics_src)
     if not os.path.exists(comics_list):
         f = open(comics_list, 'w')
         f.close()
@@ -566,8 +501,7 @@ if __name__ == "__main__":
     screen_resolution = app.desktop().screenGeometry()
     screen_width = screen_resolution.width()
     screen_height = screen_resolution.height()
-    print (screen_height, screen_width)
-    #MainWindow = QtGui.QWidget()
+    print(screen_height, screen_width)
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     ui.date.setDate(QtCore.QDate.currentDate())
