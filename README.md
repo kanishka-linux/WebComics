@@ -18,7 +18,7 @@ python-beautifulsoup4
 python-lxml
 
 
-## Installation (Common for all pltforms)
+## Installation (Common for all platforms)
 
 		$ git clone https://github.com/kanishka-linux/WebComics
 		$ cd Webcomics
