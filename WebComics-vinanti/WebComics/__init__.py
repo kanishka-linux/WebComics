@@ -18,3 +18,5 @@ along with WebComics.  If not, see <http://www.gnu.org/licenses/>.
 
 
 """
+
+__version__ = '3.0.0'
