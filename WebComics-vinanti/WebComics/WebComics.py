@@ -346,11 +346,9 @@ class Ui_MainWindow(object):
                 self.listComics.insertItem(r, txt)
                 self.listComics.setCurrentRow(r)
                 self.btn1.clear()
-                self.btn1.addItem('Select')
-                self.btn1.addItem('Calvin')
-                self.btn1.addItem('Garfield')
-                self.btn1.addItem('OneBigHappy')
-                for i in new_lines:
+                original_list = ['Select', 'Calvin', 'Garfield', 'OneBigHappy']
+                new_list = original_list + new_lines
+                for i in new_list:
                     self.btn1.addItem(i)
                     
     def comics(self):
