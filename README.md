@@ -1,6 +1,6 @@
 ﻿# WebComics :  
 
-A sample PyQt5 based desktop application rewritten using Vinanti library for accessing online comic strips.
+A sample PyQt5 based desktop application rewritten using [Vinanti](https://github.com/kanishka-linux/vinanti) library for accessing online comic strips.
 
 Note : This appliation fetches comic strips from 'gocomics.com'
 
@@ -42,11 +42,11 @@ Once installed, open application using command **webcomics**
 
 # Dependencies installation in arch.
 
-sudo pacman -S python python-pyqt5 python-pillow python-beautifulsoup4 python-lxml
+sudo pacman -S python python-pyqt5 python-pillow python-beautifulsoup4
 
 # In ubuntu 16.04+
 
-sudo apt-get install python3 python3-pyqt5 python3-pil python3-bs4 python3-lxml
+sudo apt-get install python3 python3-pyqt5 python3-pil python3-bs4
 
 
 # Brief Documentation
