@@ -187,7 +187,8 @@ class Ui_MainWindow(object):
         self.btn2.clicked.connect(partial(self.zoom_image))
         self.btnM.clicked.connect(self.loadMoreComics)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.vnt = Vinanti(block=False)
+        self.hdrs = {'User-Agent':USER_AGENT}
+        self.vnt = Vinanti(block=False, hdrs=self.hdrs)
         self.base_url = None
         self.name = None
         self.picn = None
@@ -219,13 +220,13 @@ class Ui_MainWindow(object):
         if self.listComics.count() == 0:
             MainWindow.setWindowTitle('Wait..')
             url = "http://www.gocomics.com/comics/a-to-z"
-            self.vnt.get(url, onfinished=partial(self.more_comics, lines), hdrs={"User-Agent":USER_AGENT})
+            self.vnt.get(url, onfinished=partial(self.more_comics, lines))
             self.vnt.start()
                             
     def more_comics(self, lines, *args):
         MainWindow.setWindowTitle('Select Comics')
         content = args[-1].result().html
-        soup = BeautifulSoup(content, 'lxml')
+        soup = BeautifulSoup(content, 'html.parser')
         links = soup.findAll('a')
         for i in links:
             j = i.get('href')
@@ -250,7 +251,7 @@ class Ui_MainWindow(object):
         if not os.path.isfile(picn):
             MainWindow.setWindowTitle('Wait..')
             url = base_url + dt
-            self.vnt.get(url, onfinished=partial(self.process_page, dt, picn), hdrs={"User-Agent":USER_AGENT})
+            self.vnt.get(url, onfinished=partial(self.process_page, dt, picn))
             self.vnt.start()
             logger.debug(url)
         else:
@@ -276,7 +277,7 @@ class Ui_MainWindow(object):
                 url = m[1]
             except:
                 url = m[0]
-            self.vnt.get(url, onfinished=partial(self.set_picture, picn, dt), hdrs={"User-Agent":USER_AGENT}, out=picn)
+            self.vnt.get(url, onfinished=partial(self.set_picture, picn, dt), out=picn)
             self.vnt.start()
             logger.debug('processing page')
         else:
@@ -401,7 +402,7 @@ class Ui_MainWindow(object):
         self.fetch_comics(self.base_url, td)  
         
     def goto_page(self):
-        self.vnt.get(self.base_url, onfinished=self.process_go_page, hdrs={"User-Agent":USER_AGENT})
+        self.vnt.get(self.base_url, onfinished=self.process_go_page)
         self.vnt.start()
           
     def process_go_page(self, *args):
@@ -409,7 +410,7 @@ class Ui_MainWindow(object):
         base_url = args[-2]
         logger.debug('{} {}'.format(args[-2], args[-3]))
         try:
-            soup = BeautifulSoup(content, 'lxml')
+            soup = BeautifulSoup(content, 'html.parser')
             link = soup.find('div', {'class':'feature'})
             link1 = link.find('h1')
             link2 = link1.find('a')['href']
