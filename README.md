@@ -1,4 +1,4 @@
-﻿# WebComics :  A Desktop client for accessing online comic strips.
+﻿# WebComics :  A sample desktop application using Vinanti library for accessing online comic strips.
 
 Note : This appliation fetches comic strips from 'gocomics.com'
 
@@ -17,11 +17,12 @@ python-beautifulsoup4
 
 python-lxml
 
+[Vinanti](https://github.com/kanishka-linux/vinanti)
 
 ## Installation (Common for all platforms)
 
 		$ git clone https://github.com/kanishka-linux/WebComics
-		$ cd Webcomics
+		$ cd WebComics
 		$ python3 setup.py sdist (or python setup.py sdist)
 		$ cd dist
 		$ sudo pip3 install pkg_available_in_directory (or pip install pkg_available_in_directory) 
@@ -35,7 +36,7 @@ python-lxml
 		
 		for uninstalling dependencies
 		
-		$ sudo pip3 uninstall PyQt5 sip Pillow bs4 lxml
+		$ sudo pip3 uninstall PyQt5 sip Pillow bs4 lxml vinanti
 
 Once installed, open application using command **webcomics**
 
