@@ -34,7 +34,7 @@ else:
     install_dependencies = ['PyQt5', 'bs4', 'Pillow', 'lxml']
 setup(
     name='WebComics', 
-    version='2.0.0', 
+    version='3.0.0', 
     license='GPLv3', 
     author='kanishka-linux', 
     author_email='kanishka.linux@gmail.com', 
