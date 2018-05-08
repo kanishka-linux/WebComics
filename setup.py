@@ -31,7 +31,7 @@ from setuptools import setup
 if platform.system().lower() == 'linux':
     install_dependencies = []
 else:
-    install_dependencies = ['PyQt5', 'bs4', 'Pillow', 'lxml']
+    install_dependencies = ['PyQt5', 'bs4', 'Pillow', 'vinanti']
 setup(
     name='WebComics', 
     version='3.0.0', 
