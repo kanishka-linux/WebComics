@@ -1,6 +1,6 @@
 ﻿# WebComics :  
 
-A sample PyQt5 based desktop application using Vinanti library for accessing online comic strips.
+A sample PyQt5 based desktop application rewritten using Vinanti library for accessing online comic strips.
 
 Note : This appliation fetches comic strips from 'gocomics.com'
 
