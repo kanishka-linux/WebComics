@@ -5,7 +5,7 @@ A sample PyQt5 based desktop application rewritten using Vinanti library for acc
 Note : This appliation fetches comic strips from 'gocomics.com'
 
 # Screenshot
-![ReadManga](/Images/sample.png)
+![WebComics](/Images/sample.png)
 
 # Dependencies and Installation:
 
@@ -16,8 +16,6 @@ python-pyqt5
 python-pillow
 
 python-beautifulsoup4
-
-python-lxml
 
 [Vinanti](https://github.com/kanishka-linux/vinanti)
 
@@ -38,7 +36,7 @@ python-lxml
 		
 		for uninstalling dependencies
 		
-		$ sudo pip3 uninstall PyQt5 sip Pillow bs4 lxml vinanti
+		$ sudo pip3 uninstall PyQt5 sip Pillow bs4 vinanti
 
 Once installed, open application using command **webcomics**
 
