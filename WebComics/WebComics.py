@@ -21,11 +21,17 @@ import datetime
 import time
 import re
 import sys
-import urllib.request
+import logging
+from functools import partial
 from bs4 import BeautifulSoup
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDateTime
+from vinanti import Vinanti
+
+logger = logging.getLogger(__name__)
+
+USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0"
 
 class QtGuiQWidgetScroll(QtWidgets.QScrollArea):
     def __init__(self):
@@ -34,11 +40,9 @@ class QtGuiQWidgetScroll(QtWidgets.QScrollArea):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Left:
             ui.previous()
-            ui.zoom_image()
             ui.scrollArea.verticalScrollBar().setValue(0)
         elif event.key() == QtCore.Qt.Key_Right:
             ui.nxt()
-            ui.zoom_image()
             ui.scrollArea.verticalScrollBar().setValue(0)
         elif event.key() == QtCore.Qt.Key_Space:
             self.hide()
@@ -57,86 +61,6 @@ class MyWidget(QtWidgets.QWidget):
         elif event.key() == QtCore.Qt.Key_Right:
             ui.nxt()
 
-
-class ExtendedQLabelEpn(QtWidgets.QLabel):
-
-    def __init(self, parent):
-        super(ExtendedQLabelEpn, self).__init__(parent)
-
-    def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Backspace:
-            ui.previous()
-            ui.zoom_image()
-            
-            
-def ccurl(url, opt=None, out_file=None):
-    global MainWindow
-    MainWindow.setWindowTitle('Wait..')
-    usr_agent = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0"
-    content = None
-    req = urllib.request.Request(
-        url, data=None, headers={'User-Agent': usr_agent})
-    if opt == '-o' and out_file:
-        urllib.request.urlretrieve(url, out_file)
-    else:
-        f = urllib.request.urlopen(req)
-        content = f.read().decode('utf-8')
-    MainWindow.setWindowTitle('Read Comics')
-    if content:
-        return content
-    
-    
-def getPrevNext(content):
-    global prev_date, next_date
-    
-    soup = BeautifulSoup(content, 'lxml')
-    link = soup.find('div', {'class':'feature'})
-    
-    linkP = link.find('ul', {'class':'feature-nav'})
-    linkP1 = linkP.find('a', {'class':'prev'})
-    linkP2 = linkP1['href']
-    print (linkP2)
-    l = linkP2.split('/')
-    prev_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
-    print(prev_date)
-    
-    linkP = link.find('ul', {'class':'feature-nav'})
-    linkP1 = linkP.find('a', {'class':'next'})
-    linkP2 = linkP1['href']
-    print (linkP2)
-    l = linkP2.split('/')
-    next_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
-    print(next_date)
-    
-def fetch_comics(base_url, dt):
-    global picn, name, homeComics, home1, prev_date, cur_date, MainWindow
-    t = re.sub('/', '-', dt)
-    picn = os.path.join(home1, '{}-{}.jpg'.format(name, t))
-    print(picn)
-    try:
-        if not os.path.isfile(picn):
-            url = base_url + dt
-            content = ccurl(url)
-            print(url)
-            m = re.findall('data-image="http[^"]*', content)
-            print(m)
-            j = 0
-            for i in m:
-                m[j] = re.sub('data-image="', "", i)
-                j = j+1
-            print(m)
-            try:
-                url = m[1]
-            except:
-                url = m[0]
-            ccurl(url, opt='-o', out_file=picn)
-        if os.path.isfile(picn):
-            img = QtGui.QPixmap(picn, "1")
-            ui.label.setPixmap(img)
-        else:
-            MainWindow.setWindowTitle('No Comics For This Date')
-    except Exception as err:
-        print(err)
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -169,7 +93,6 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
-        #self.tab = QtGui.QWidget()
         self.tab = MyWidget(MainWindow)
         self.tab.setObjectName(_fromUtf8("tab"))
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.tab)
@@ -236,7 +159,6 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
         
-        #self.scrollArea = QtGui.QScrollArea()
         self.scrollArea = QtGuiQWidgetScroll()
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setMaximumSize(screen_width, screen_height-60)
@@ -257,22 +179,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.listComics)
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        #QtCore.QObject.connect(self.btn1, QtCore.SIGNAL(_fromUtf8("currentIndexChanged(QString)")), self.comics)
         self.btn1.currentIndexChanged['QString'].connect(self.comics)
-        #QtCore.QObject.connect(self.listComics, QtCore.SIGNAL(_fromUtf8("itemDoubleClicked(QListWidgetItem*)")), self.addComics)
         self.listComics.itemDoubleClicked['QListWidgetItem*'].connect(self.addComics)
-        #QtCore.QObject.connect(self.prev, QtCore.SIGNAL(_fromUtf8("clicked()")), self.previous)
         self.prev.clicked.connect(self.previous)
-        #QtCore.QObject.connect(self.next, QtCore.SIGNAL(_fromUtf8("clicked()")), self.nxt)
         self.next.clicked.connect(self.nxt)
-        #QtCore.QObject.connect(self.go, QtCore.SIGNAL(_fromUtf8("clicked()")), self.goto_direct)
         self.go.clicked.connect(self.goto_direct)
-        #QtCore.QObject.connect(self.btn2, QtCore.SIGNAL(_fromUtf8("clicked()")), self.zoom_image)
-        self.btn2.clicked.connect(self.zoom_image)
-        #QtCore.QObject.connect(self.btnM, QtCore.SIGNAL(_fromUtf8("clicked()")), self.loadMoreComics)
+        self.btn2.clicked.connect(partial(self.zoom_image))
         self.btnM.clicked.connect(self.loadMoreComics)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+        self.vnt = Vinanti(block=False)
+        self.base_url = None
+        self.name = None
+        self.picn = None
+        self.home_comics = None
+        self.cur_date = None
+        
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "Read Comics", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1", None))
@@ -288,227 +209,274 @@ class Ui_MainWindow(object):
         self.btn2.setText(_translate("MainWindow", "Original", None))
         self.btnM.setText(_translate("MainWindow", "More", None))
         self.btn2.setToolTip(_translate("MainWindow", "<html><head/><body><p>Show Original Image Size</p></body></html>", None))
-        #self.prev.setToolTip(_translate("MainWindow", "<html><head/><body><p>Go To Previous Page</p></body></html>", None))
-        #self.next.setToolTip(_translate("MainWindow", "<html><head/><body><p>Go To Next Page</p></body></html>", None))
         
     def loadMoreComics(self):
         self.tabWidget.setCurrentIndex(1)
-        global homeComics
-        comics_list = os.path.join(homeComics, 'config.txt')
-        f = open(comics_list, 'r')
-        lines = f.readlines()
-        f.close()
-        for i in range(len(lines)):
-            lines[i] = lines[i].replace('\n', '')
+        comics_list = os.path.join(home_comics, 'config.txt')
+        with open(comics_list, 'r') as f:
+            lines = f.readlines()
+        lines = [i.strip() for i in lines if i.strip()]
         if self.listComics.count() == 0:
+            MainWindow.setWindowTitle('Wait..')
             url = "http://www.gocomics.com/comics/a-to-z"
-            content = ccurl(url)
-            soup = BeautifulSoup(content, 'lxml')
-            links = soup.findAll('a')
-            for i in links:
-                j = i.get('href')
-                if j:
-                    last = j.rsplit('/')[-1]
-                    if last.isnumeric():
-                        karr = j.split('/')
-                        print(karr)
-                        if len(karr) > 1:
-                            k = karr[1]
-                        else:
-                            k = None
-                        if k in lines:
-                            self.listComics.addItem('#'+k)
-                        elif k:
-                            self.listComics.addItem(k)
-            
+            self.vnt.get(url, onfinished=partial(self.more_comics, lines), hdrs={"User-Agent":USER_AGENT})
+            self.vnt.start()
+                            
+    def more_comics(self, lines, *args):
+        MainWindow.setWindowTitle('Select Comics')
+        content = args[-1].result().html
+        soup = BeautifulSoup(content, 'lxml')
+        links = soup.findAll('a')
+        for i in links:
+            j = i.get('href')
+            if j:
+                last = j.rsplit('/')[-1]
+                if last.isnumeric():
+                    karr = j.split('/')
+                    if len(karr) > 1:
+                        k = karr[1]
+                    else:
+                        k = None
+                    if k in lines:
+                        self.listComics.addItem('#'+k)
+                    elif k:
+                        self.listComics.addItem(k)
+    
+    def fetch_comics(self, base_url, dt):
+        t = re.sub('/', '-', dt)
+        picn = os.path.join(self.home_comics, '{}-{}.jpg'.format(self.name, t))
+        logger.debug(picn)
+        self.picn = picn
+        if not os.path.isfile(picn):
+            MainWindow.setWindowTitle('Wait..')
+            url = base_url + dt
+            self.vnt.get(url, onfinished=partial(self.process_page, dt, picn), hdrs={"User-Agent":USER_AGENT})
+            self.vnt.start()
+            logger.debug(url)
+        else:
+            img = QtGui.QPixmap(picn, "1")
+            self.label.setPixmap(img)
+            title = '{} {}'.format(self.name, dt)
+            MainWindow.setWindowTitle(title)
+            self.scrollArea.setWindowTitle(title)
+            if not self.scrollArea.isHidden():
+                self.zoom_image(picn)
+        
+    def process_page(self, *args):
+        content = args[-1].result().html
+        m = re.findall('data-image="http[^"]*', content)
+        logger.debug(m)
+        dt = args[0]
+        picn = args[1]
+        for j, i in enumerate(m):
+            m[j] = re.sub('data-image="', "", i)
+        logger.debug(m)
+        if len(m) > 0:
+            try:
+                url = m[1]
+            except:
+                url = m[0]
+            self.vnt.get(url, onfinished=partial(self.set_picture, picn, dt), hdrs={"User-Agent":USER_AGENT}, out=picn)
+            self.vnt.start()
+            logger.debug('processing page')
+        else:
+            MainWindow.setWindowTitle('Comic strip not available for this date')
+
+    def set_picture(self, *args):
+        picn = args[0]
+        dt = args[1]
+        if os.path.isfile(picn):
+            title = '{} {}'.format(self.name, dt)
+            self.scrollArea.setWindowTitle(title)
+            MainWindow.setWindowTitle(title)
+            img = QtGui.QPixmap(picn, "1")
+            self.label.setPixmap(img)
+            if not self.scrollArea.isHidden():
+                self.zoom_image(picn)
+        else:
+            MainWindow.setWindowTitle('Comic strip not available for this date')
+        logger.debug('setting-picture')
+    
     def addComics(self):
-        global homeComics
-        comics_list = os.path.join(homeComics, 'config.txt')
+        comics_list = os.path.join(home_comics, 'config.txt')
         r = self.listComics.currentRow()
         item = self.listComics.item(r)
         if item:
             txt = item.text()
-            
             if not txt.startswith('#'):
-                
                 if os.stat(comics_list).st_size == 0:
-                    f = open(comics_list, 'w')
-                    f.write(txt)
-                    f.close()
+                    with open(comics_list, 'w') as f:
+                        f.write(txt)
                     self.btn1.addItem(txt)
                     self.listComics.takeItem(r)
                     del item
                     self.listComics.insertItem(r, '#'+txt)
                     self.listComics.setCurrentRow(r)
                 else:
-                    f = open(comics_list, 'r')
-                    lines = f.readlines()
-                    f.close()
-                    for i in range(len(lines)):
-                        lines[i] = lines[i].replace('\n', '')
+                    lines = []
+                    with open(comics_list, 'r') as f:
+                        lines = f.readlines()
+                    lines = [i.strip() for i in lines if i.strip()]
                     if txt not in lines:
-                        f = open(comics_list, 'a')
-                        f.write('\n'+txt)
-                        f.close()
+                        with open(comics_list, 'a') as f:
+                            f.write('\n'+txt)
                         self.btn1.addItem(txt)
-                    
                     self.listComics.takeItem(r)
                     del item
                     self.listComics.insertItem(r, '#'+txt)
                     self.listComics.setCurrentRow(r)
             else:
+                lines = []
                 txt = txt.replace('#', '')
-                f = open(comics_list, 'r')
-                lines = f.readlines()
-                f.close()
-                for i in range(len(lines)):
-                    lines[i] = lines[i].replace('\n', '')
-                for i in range(len(lines)):
-                    if txt == lines[i]:
-                        del lines[i]
-                        break
-                f = open(comics_list, 'w')
-                for i in range(len(lines)):
-                    if i == 0:
-                        f.write(lines[i])
-                    else:
-                        f.write('\n'+lines[i])
-                f.close()
+                with open(comics_list, 'r') as f:
+                    lines = f.readlines()
+                lines = [i.strip() for i in lines if i.strip()]
+                new_lines = []
+                for i, j in enumerate(lines):
+                    if txt != j:
+                        new_lines.append(j)
+                with open(comics_list, 'w') as f:
+                    for i, j in enumerate(new_lines):
+                        if i == 0:
+                            f.write(j)
+                        else:
+                            f.write('\n'+j)
                 self.listComics.takeItem(r)
                 del item
                 self.listComics.insertItem(r, txt)
                 self.listComics.setCurrentRow(r)
                 self.btn1.clear()
-                self.btn1.addItem('Select')
-                self.btn1.addItem('Calvin')
-                self.btn1.addItem('Garfield')
-                self.btn1.addItem('OneBigHappy')
-                for i in range(len(lines)):
-                    self.btn1.addItem(lines[i])
+                original_list = ['Select', 'Calvin', 'Garfield', 'OneBigHappy']
+                new_list = original_list + new_lines
+                for i in new_list:
+                    self.btn1.addItem(i)
+                    
     def comics(self):
-        global name, base_url, homeComics, home1
-        name = str(self.btn1.currentText())
-        if name != "Select" and name:
+        self.name = str(self.btn1.currentText())
+        if self.name != "Select" and self.name:
             self.tabWidget.setCurrentIndex(0)
-            home1 = os.path.join(homeComics, name)
-            if not os.path.exists(home1):
-                os.makedirs(home1)
-            if name == "Calvin":
-                base_url = "http://www.gocomics.com/calvinandhobbes/"
-            elif name == "Garfield":
-                base_url = "http://www.gocomics.com/garfield/"
-            elif name == "OneBigHappy":
-                base_url = "http://www.gocomics.com/onebighappy/"
+            self.home_comics = os.path.join(home_comics, self.name)
+            if not os.path.exists(self.home_comics):
+                os.makedirs(self.home_comics)
+            if self.name == "Calvin":
+                self.base_url = "http://www.gocomics.com/calvinandhobbes/"
+            elif self.name == "Garfield":
+                self.base_url = "http://www.gocomics.com/garfield/"
+            elif self.name == "OneBigHappy":
+                self.base_url = "http://www.gocomics.com/onebighappy/"
             else:
-                base_url = "http://www.gocomics.com/"+name+'/'
+                self.base_url = "http://www.gocomics.com/"+self.name+'/'
             self.goto_page()
         
-    def zoom_image(self):
-        global picn, screen_width, screen_height
+    def zoom_image(self, picn=None):
+        global screen_width, screen_height
+        logger.debug(picn)
         try:
-            im = Image.open(picn)
-            w, h = im.size
-            img = QtGui.QPixmap(picn, "1")
-            self.labelExp.setPixmap(img)
-            QtWidgets.QApplication.processEvents()
-            print (w, screen_width, h, screen_height)
-            if w < screen_width:
-                wd = w+20
-            else:
-                wd = screen_width
-            if h < screen_height:
-                ht = h + 20
-            else:
-                ht = screen_height - 60
-            self.scrollArea.resize(wd, ht)
-            self.scrollArea.show()
-            self.scrollArea.setWindowTitle(self.btn1.currentText())
+            if not picn:
+                picn = self.picn
+            if os.path.isfile(picn):
+                im = Image.open(picn)
+                w, h = im.size
+                img = QtGui.QPixmap(picn, "1")
+                self.labelExp.setPixmap(img)
+                QtWidgets.QApplication.processEvents()
+                print (w, screen_width, h, screen_height)
+                if w < screen_width:
+                    wd = w+20
+                else:
+                    wd = screen_width
+                if h < screen_height:
+                    ht = h + 20
+                else:
+                    ht = screen_height - 60
+                self.scrollArea.resize(wd, ht)
+                self.scrollArea.show()
         except Exception as err:
-            print(err)
+            logger.error(err)
         
     def goto_direct(self):
-        global td, base_url, picn, cur_date, prev_date
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         td = re.sub('-', '/', str(today))
         print (td)
-        fetch_comics(base_url, td)  
+        self.fetch_comics(self.base_url, td)  
         
     def goto_page(self):
-        global td, base_url, picn, cur_date, prev_date
+        self.vnt.get(self.base_url, onfinished=self.process_go_page, hdrs={"User-Agent":USER_AGENT})
+        self.vnt.start()
+          
+    def process_go_page(self, *args):
+        content = args[-1].result().html
+        base_url = args[-2]
+        logger.debug('{} {}'.format(args[-2], args[-3]))
         try:
-            content = ccurl(base_url)
             soup = BeautifulSoup(content, 'lxml')
             link = soup.find('div', {'class':'feature'})
             link1 = link.find('h1')
             link2 = link1.find('a')['href']
             l = link2.split('/')
             td = l[-3]+'/'+l[-2]+'/'+l[-1] 
-            print(td)
-            cur_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
-        except:
+            logger.debug(td)
+            self.cur_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
+        except Exception as err:
             today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
             td = re.sub('-', '/', str(today))
-            print(td)
-        print(base_url, td)
-        fetch_comics(base_url, td)
-        self.tab.setFocus()  
-  
+            logger.debug(td)
+        self.fetch_comics(base_url, td)
+        self.tab.setFocus() 
+        logger.debug('process_go_page')
+    
     def previous(self):
-        global td, base_url, picn, prev_date
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         day = datetime.timedelta(days=1)
         yday = today - day
         self.date.setDate(yday)
         td = re.sub('-', '/', str(yday))
-        print(td)
-        fetch_comics(base_url, td)
+        logger.debug(td)
+        self.fetch_comics(self.base_url, td)
     
     def nxt(self):
-        global td, base_url, picn, cur_date, next_date
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         day = datetime.timedelta(days=1)
         tm = today + day
-        if tm <= cur_date:
+        if tm <= self.cur_date:
             self.date.setDate(tm)
             td = re.sub('-', '/', str(tm))
             print (td)
-            fetch_comics(base_url, td)
+            self.fetch_comics(self.base_url, td)
     
 
 def main():
-    import sys
-    global ui, MainWindow, td, base_url, picn, home, cur_date
-    global homeComics, screen_width, screen_height
+    global ui, MainWindow, home
+    global home_comics, screen_width, screen_height
     home = os.path.expanduser("~")
-    homeComics = os.path.join(home, ".config", "Webcomics")
-    comics_list = os.path.join(homeComics, "config.txt")
-    if not os.path.exists(homeComics):
-        os.makedirs(homeComics)
-    comics_src = os.path.join(homeComics, 'src')
+    home_comics = os.path.join(home, ".config", "Webcomics")
+    comics_list = os.path.join(home_comics, "config.txt")
+    if not os.path.exists(home_comics):
+        os.makedirs(home_comics)
+    comics_src = os.path.join(home_comics, 'src')
     if not os.path.exists(comics_src):
         os.makedirs(comics_src)
         os.chdir(comics_src)
     if not os.path.exists(comics_list):
-        f = open(comics_list, 'w')
-        f.close()
+        open(comics_list, 'w').close()
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     screen_resolution = app.desktop().screenGeometry()
     screen_width = screen_resolution.width()
     screen_height = screen_resolution.height()
-    print(screen_height, screen_width)
+    logger.debug('{} , {}'.format(screen_height, screen_width))
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     ui.date.setDate(QtCore.QDate.currentDate())
-    cur_date = datetime.date(ui.date.date().year(), ui.date.date().month(), ui.date.date().day())
+    ui.cur_date = datetime.date(ui.date.date().year(), ui.date.date().month(), ui.date.date().day())
     MainWindow.show()
     if os.path.exists(comics_list):
-        f = open(comics_list, 'r')
-        lines = f.readlines()
-        f.close()
-        for i in range(len(lines)):
-            if not lines[i].startswith('#'):
-                j = re.sub('#|\n', '', lines[i])
+        lines = []
+        with open(comics_list, 'r') as f:
+            lines = f.readlines()
+        for i, j in enumerate(lines):
+            if not j.startswith('#'):
+                j = re.sub('#|\n', '', j)
                 if j:
                     ui.btn1.addItem(j)
     sys.exit(app.exec_())
