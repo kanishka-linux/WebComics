@@ -221,7 +221,6 @@ class Ui_MainWindow(object):
             MainWindow.setWindowTitle('Wait..')
             url = "http://www.gocomics.com/comics/a-to-z"
             self.vnt.get(url, onfinished=partial(self.more_comics, lines))
-            self.vnt.start()
                             
     def more_comics(self, lines, *args):
         MainWindow.setWindowTitle('Select Comics')
@@ -252,7 +251,6 @@ class Ui_MainWindow(object):
             MainWindow.setWindowTitle('Wait..')
             url = base_url + dt
             self.vnt.get(url, onfinished=partial(self.process_page, dt, picn))
-            self.vnt.start()
             logger.debug(url)
         else:
             img = QtGui.QPixmap(picn, "1")
@@ -278,7 +276,6 @@ class Ui_MainWindow(object):
             except:
                 url = m[0]
             self.vnt.get(url, onfinished=partial(self.set_picture, picn, dt), out=picn)
-            self.vnt.start()
             logger.debug('processing page')
         else:
             MainWindow.setWindowTitle('Comic strip not available for this date')
@@ -403,7 +400,6 @@ class Ui_MainWindow(object):
         
     def goto_page(self):
         self.vnt.get(self.base_url, onfinished=self.process_go_page)
-        self.vnt.start()
           
     def process_go_page(self, *args):
         content = args[-1].result().html
