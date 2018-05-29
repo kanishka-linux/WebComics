@@ -224,7 +224,7 @@ class Ui_MainWindow(object):
                             
     def more_comics(self, lines, *args):
         MainWindow.setWindowTitle('Select Comics')
-        content = args[-1].result().html
+        content = args[-1].html
         soup = BeautifulSoup(content, 'html.parser')
         links = soup.findAll('a')
         for i in links:
@@ -262,7 +262,7 @@ class Ui_MainWindow(object):
                 self.zoom_image(picn)
         
     def process_page(self, *args):
-        content = args[-1].result().html
+        content = args[-1].html
         m = re.findall('data-image="http[^"]*', content)
         logger.debug(m)
         dt = args[0]
@@ -402,7 +402,7 @@ class Ui_MainWindow(object):
         self.vnt.get(self.base_url, onfinished=self.process_go_page)
           
     def process_go_page(self, *args):
-        content = args[-1].result().html
+        content = args[-1].html
         base_url = args[-2]
         logger.debug('{} {}'.format(args[-2], args[-3]))
         try:
