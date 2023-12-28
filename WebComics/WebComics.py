@@ -18,7 +18,6 @@ along with WebComics.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import datetime
-import time
 import re
 import sys
 import logging
@@ -26,17 +25,52 @@ from functools import partial
 from bs4 import BeautifulSoup
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QDateTime
 from vinanti import Vinanti
 
 logger = logging.getLogger(__name__)
 
-USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:45.0) Gecko/20100101 Firefox/45.0"
+USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:109.0) Gecko/20100101 Firefox/121.0"
+
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
+
+class CustomSignalEmitter(QObject):
+    image_signal = pyqtSignal(str, str)
+    window_signal = pyqtSignal(str)
+
+    def __init__(self, ui):
+        QtCore.QObject.__init__(self)
+        self.ui = ui
+        self.image_signal.connect(self.apply_image)
+        self.window_signal.connect(self.apply_window_title)
+
+    def emit_window_signal(self, title):
+        self.window_signal.emit(title)
+
+    def emit_image_signal(self, picn, dt):
+        self.image_signal.emit(picn, dt)
+
+    @pyqtSlot(str)
+    def apply_window_title(self, title):
+        MainWindow.setWindowTitle(title)
+
+    @pyqtSlot(str, str)
+    def apply_image(self, picn, dt):
+        if os.path.isfile(picn):
+            title = '{} {}'.format(self.ui.name, dt)
+            self.ui.scrollArea.setWindowTitle(title)
+            MainWindow.setWindowTitle(title)
+            img = QtGui.QPixmap(picn, "1")
+            self.ui.label.setPixmap(img)
+            if not self.ui.scrollArea.isHidden():
+                self.ui.zoom_image(picn)
+        else:
+            MainWindow.setWindowTitle('Comic strip not available for this date')
+        logger.debug('setting-picture')
 
 class QtGuiQWidgetScroll(QtWidgets.QScrollArea):
     def __init__(self):
         super(QtGuiQWidgetScroll, self).__init__()
-        
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Left:
             ui.previous()
@@ -54,7 +88,7 @@ class QtGuiQWidgetScroll(QtWidgets.QScrollArea):
 class MyWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         super(QtWidgets.QWidget, self).__init__(parent)
-        
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Left:
             ui.previous()
@@ -77,6 +111,9 @@ except AttributeError:
         return QtWidgets.QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
+
+    custom_signal = pyqtSignal(str, str)
+
     def setupUi(self, MainWindow):
         global screen_height, screen_width
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
@@ -137,7 +174,7 @@ class Ui_MainWindow(object):
         self.btn1 = QtWidgets.QComboBox(self.frame)
         self.btn1.setGeometry(QtCore.QRect(30, 15, 110, 31))
         self.btn1.setObjectName(_fromUtf8("btn1"))
-        
+
         self.btn1.addItem(_fromUtf8(""))
         self.btn1.addItem(_fromUtf8(""))
         self.btn1.addItem(_fromUtf8(""))
@@ -158,7 +195,7 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
-        
+
         self.scrollArea = QtGuiQWidgetScroll()
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setMaximumSize(screen_width, screen_height-60)
@@ -171,7 +208,7 @@ class Ui_MainWindow(object):
         self.labelExp.setObjectName(_fromUtf8("labelExp"))
         self.labelExp.setScaledContents(True)
         self.vBox.addWidget(self.labelExp)
-        
+
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.tab_2)
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.listComics = QtWidgets.QListWidget(self.tab_2)
@@ -194,7 +231,7 @@ class Ui_MainWindow(object):
         self.picn = None
         self.home_comics = None
         self.cur_date = None
-        
+
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "Read Comics", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1", None))
@@ -210,7 +247,7 @@ class Ui_MainWindow(object):
         self.btn2.setText(_translate("MainWindow", "Original", None))
         self.btnM.setText(_translate("MainWindow", "More", None))
         self.btn2.setToolTip(_translate("MainWindow", "<html><head/><body><p>Show Original Image Size</p></body></html>", None))
-        
+
     def loadMoreComics(self):
         self.tabWidget.setCurrentIndex(1)
         comics_list = os.path.join(home_comics, 'config.txt')
@@ -219,11 +256,10 @@ class Ui_MainWindow(object):
         lines = [i.strip() for i in lines if i.strip()]
         if self.listComics.count() == 0:
             MainWindow.setWindowTitle('Wait..')
-            url = "http://www.gocomics.com/comics/a-to-z"
+            url = "https://www.gocomics.com/comics/a-to-z"
             self.vnt.get(url, onfinished=partial(self.more_comics, lines))
-                            
     def more_comics(self, lines, *args):
-        MainWindow.setWindowTitle('Select Comics')
+        emitter.emit_window_signal('Select Comics')
         content = args[-1].html
         soup = BeautifulSoup(content, 'html.parser')
         links = soup.findAll('a')
@@ -241,60 +277,44 @@ class Ui_MainWindow(object):
                         self.listComics.addItem('#'+k)
                     elif k:
                         self.listComics.addItem(k)
-    
+
     def fetch_comics(self, base_url, dt):
         t = re.sub('/', '-', dt)
         picn = os.path.join(self.home_comics, '{}-{}.jpg'.format(self.name, t))
         logger.debug(picn)
         self.picn = picn
         if not os.path.isfile(picn):
-            MainWindow.setWindowTitle('Wait..')
+            emitter.emit_window_signal("Wait..")
             url = base_url + dt
             self.vnt.get(url, onfinished=partial(self.process_page, dt, picn))
             logger.debug(url)
         else:
-            img = QtGui.QPixmap(picn, "1")
-            self.label.setPixmap(img)
-            title = '{} {}'.format(self.name, dt)
-            MainWindow.setWindowTitle(title)
-            self.scrollArea.setWindowTitle(title)
-            if not self.scrollArea.isHidden():
-                self.zoom_image(picn)
-        
+            emitter.emit_image_signal(picn, dt)
+
     def process_page(self, *args):
         content = args[-1].html
-        m = re.findall('data-image="http[^"]*', content)
+        m = re.findall('data-srcset="https://assets.amuniversal[^"]*', content)
         logger.debug(m)
         dt = args[0]
         picn = args[1]
         for j, i in enumerate(m):
-            m[j] = re.sub('data-image="', "", i)
+            m[j] = re.sub('data-srcset="', "", i)
         logger.debug(m)
         if len(m) > 0:
             try:
-                url = m[1]
+                url = m[1].split()[0]
             except:
-                url = m[0]
+                url = m[0].split()[0]
             self.vnt.get(url, onfinished=partial(self.set_picture, picn, dt), out=picn)
             logger.debug('processing page')
         else:
-            MainWindow.setWindowTitle('Comic strip not available for this date')
+            emitter.emit_window_signal('Comic strip not available for this date')
 
     def set_picture(self, *args):
         picn = args[0]
         dt = args[1]
-        if os.path.isfile(picn):
-            title = '{} {}'.format(self.name, dt)
-            self.scrollArea.setWindowTitle(title)
-            MainWindow.setWindowTitle(title)
-            img = QtGui.QPixmap(picn, "1")
-            self.label.setPixmap(img)
-            if not self.scrollArea.isHidden():
-                self.zoom_image(picn)
-        else:
-            MainWindow.setWindowTitle('Comic strip not available for this date')
-        logger.debug('setting-picture')
-    
+        emitter.emit_image_signal(picn, dt)
+
     def addComics(self):
         comics_list = os.path.join(home_comics, 'config.txt')
         r = self.listComics.currentRow()
@@ -348,7 +368,7 @@ class Ui_MainWindow(object):
                 new_list = original_list + new_lines
                 for i in new_list:
                     self.btn1.addItem(i)
-                    
+
     def comics(self):
         self.name = str(self.btn1.currentText())
         if self.name != "Select" and self.name:
@@ -357,15 +377,15 @@ class Ui_MainWindow(object):
             if not os.path.exists(self.home_comics):
                 os.makedirs(self.home_comics)
             if self.name == "Calvin":
-                self.base_url = "http://www.gocomics.com/calvinandhobbes/"
+                self.base_url = "https://www.gocomics.com/calvinandhobbes/"
             elif self.name == "Garfield":
-                self.base_url = "http://www.gocomics.com/garfield/"
+                self.base_url = "https://www.gocomics.com/garfield/"
             elif self.name == "OneBigHappy":
-                self.base_url = "http://www.gocomics.com/onebighappy/"
+                self.base_url = "https://www.gocomics.com/onebighappy/"
             else:
-                self.base_url = "http://www.gocomics.com/"+self.name+'/'
+                self.base_url = "https://www.gocomics.com/"+self.name+'/'
             self.goto_page()
-        
+
     def zoom_image(self, picn=None):
         global screen_width, screen_height
         logger.debug(picn)
@@ -378,7 +398,7 @@ class Ui_MainWindow(object):
                 img = QtGui.QPixmap(picn, "1")
                 self.labelExp.setPixmap(img)
                 QtWidgets.QApplication.processEvents()
-                print (w, screen_width, h, screen_height)
+                print(w, screen_width, h, screen_height)
                 if w < screen_width:
                     wd = w+20
                 else:
@@ -391,16 +411,16 @@ class Ui_MainWindow(object):
                 self.scrollArea.show()
         except Exception as err:
             logger.error(err)
-        
+
     def goto_direct(self):
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         td = re.sub('-', '/', str(today))
-        print (td)
-        self.fetch_comics(self.base_url, td)  
-        
+        print(td)
+        self.fetch_comics(self.base_url, td)
+
     def goto_page(self):
         self.vnt.get(self.base_url, onfinished=self.process_go_page)
-          
+
     def process_go_page(self, *args):
         content = args[-1].html
         base_url = args[-2]
@@ -411,7 +431,7 @@ class Ui_MainWindow(object):
             link1 = link.find('h1')
             link2 = link1.find('a')['href']
             l = link2.split('/')
-            td = l[-3]+'/'+l[-2]+'/'+l[-1] 
+            td = l[-3]+'/'+l[-2]+'/'+l[-1]
             logger.debug(td)
             self.cur_date = datetime.date(int(l[-3]), int(l[-2]), int(l[-1]))
         except Exception as err:
@@ -419,9 +439,9 @@ class Ui_MainWindow(object):
             td = re.sub('-', '/', str(today))
             logger.debug(td)
         self.fetch_comics(base_url, td)
-        self.tab.setFocus() 
+        self.tab.setFocus()
         logger.debug('process_go_page')
-    
+
     def previous(self):
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         day = datetime.timedelta(days=1)
@@ -430,7 +450,7 @@ class Ui_MainWindow(object):
         td = re.sub('-', '/', str(yday))
         logger.debug(td)
         self.fetch_comics(self.base_url, td)
-    
+
     def nxt(self):
         today = datetime.date(self.date.date().year(), self.date.date().month(), self.date.date().day())
         day = datetime.timedelta(days=1)
@@ -440,11 +460,11 @@ class Ui_MainWindow(object):
             td = re.sub('-', '/', str(tm))
             print (td)
             self.fetch_comics(self.base_url, td)
-    
 
 def main():
     global ui, MainWindow, home
     global home_comics, screen_width, screen_height
+    global emitter
     home = os.path.expanduser("~")
     home_comics = os.path.join(home, ".config", "Webcomics")
     comics_list = os.path.join(home_comics, "config.txt")
@@ -464,6 +484,9 @@ def main():
     logger.debug('{} , {}'.format(screen_height, screen_width))
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+
+    emitter = CustomSignalEmitter(ui)
+
     ui.date.setDate(QtCore.QDate.currentDate())
     ui.cur_date = datetime.date(ui.date.date().year(), ui.date.date().month(), ui.date.date().day())
     MainWindow.show()
@@ -480,4 +503,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
